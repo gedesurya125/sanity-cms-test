@@ -2,9 +2,10 @@ import {defineConfig} from 'sanity'
 import {structureTool} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemaTypes'
+import {myStructure} from './deskStructure'
 // import {presentationTool} from 'sanity/presentation'
 
-const SANITY_STUDIO_PREVIEW_URL = process.env.SANITY_STUDIO_PREVIEW_URL || 'http://localhost:3000'
+// const SANITY_STUDIO_PREVIEW_URL = process.env.SANITY_STUDIO_PREVIEW_URL || 'http://localhost:3000'
 export default defineConfig({
   name: 'default',
   title: 'portofolio',
@@ -13,7 +14,9 @@ export default defineConfig({
   dataset: 'production',
 
   plugins: [
-    structureTool(),
+    structureTool({
+      structure: myStructure,
+    }),
     visionTool(),
     //? it used to add the preview page
     // presentationTool({
@@ -24,5 +27,15 @@ export default defineConfig({
 
   schema: {
     types: schemaTypes,
+  },
+  document: {
+    //? remove creation button of specific template https://www.sanity.io/schemas/use-newdocumentoptions-to-configure-new-document-creation-2c640bf6
+    newDocumentOptions: (prev, {currentUser, creationContext}) => {
+      const {type, schemaType} = creationContext
+      if (type === 'global') {
+        return prev.filter((template) => template.templateId !== 'landingPage')
+      }
+      return prev
+    },
   },
 })
